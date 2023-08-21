@@ -1,84 +1,83 @@
-class SketchPad{
-   constructor(container,size=400){
-      this.canvas=document.createElement("canvas");
-      this.canvas.width=size;
-      this.canvas.height=size;
-      this.canvas.style=`
-         background-color:white;
-         box-shadow: 0px 0px 10px 2px black;
-      `;
+class SketchPad {
+   constructor(container, size = 400) {
+      // Create canvas and set attributes
+      this.canvas = document.createElement("canvas");
+      this.canvas.width = size;
+      this.canvas.height = size;
+      this.canvas.classList.add("sketch-canvas"); // Add a CSS class
       container.appendChild(this.canvas);
 
-      const lineBreak=document.createElement("br");
-      container.appendChild(lineBreak);
-
-      this.undoBtn=document.createElement("button");
-      this.undoBtn.innerHTML="UNDO";
+      // Create UNDO button
+      this.undoBtn = document.createElement("button");
+      this.undoBtn.innerHTML = "UNDO";
+      this.undoBtn.disabled = true;
       container.appendChild(this.undoBtn);
 
-      this.ctx=this.canvas.getContext("2d");
+      // Get canvas rendering context
+      this.ctx = this.canvas.getContext("2d");
 
+      // Initialize paths and drawing state
       this.reset();
 
-      this.#addEventListeners();
+      // Add event listeners using event delegation
+      container.addEventListener("mousedown", this.handleStartDrawing);
+      container.addEventListener("mousemove", this.handleDrawing);
+      document.addEventListener("mouseup", this.handleEndDrawing);
+      container.addEventListener("touchstart", this.handleStartDrawing);
+      container.addEventListener("touchmove", this.handleDrawing);
+      document.addEventListener("touchend", this.handleEndDrawing);
+      this.undoBtn.addEventListener("click", this.undoLastPath);
    }
 
-   reset(){
-      this.paths=[];
-      this.isDrawing=false;
-      this.#redraw();
-   }
+   // Reset the drawing state and paths
+   reset = () => {
+      this.paths = [];
+      this.isDrawing = false;
+      this.redraw();
+   };
 
-   #addEventListeners(){
-      this.canvas.onmousedown=(evt)=>{
-         const mouse=this.#getMouse(evt);
-         this.paths.push([mouse]);
-         this.isDrawing=true;
-      }
-      this.canvas.onmousemove=(evt)=>{
-         if(this.isDrawing){
-            const mouse=this.#getMouse(evt);
-            const lastPath=this.paths[this.paths.length-1];
-            lastPath.push(mouse);
-            this.#redraw();
-         }
-      }
-      document.onmouseup=()=>{
-         this.isDrawing=false;
-      }
-      this.canvas.ontouchstart=(evt)=>{
-         const loc=evt.touches[0];
-         this.canvas.onmousedown(loc);
-      }
-      this.canvas.ontouchmove=(evt)=>{
-         const loc=evt.touches[0];
-         this.canvas.onmousemove(loc);
-      }
-      document.ontouchend=()=>{
-         document.onmouseup();
-      }
-      this.undoBtn.onclick=()=>{
-         this.paths.pop();
-         this.#redraw();
-      }
-   }
+   handleStartDrawing = (evt) => {
+      const mouse = this.getMouse(evt);
+      this.paths.push([mouse]);
+      this.isDrawing = true;
+   };
 
-   #redraw(){
-      this.ctx.clearRect(0,0,
-         this.canvas.width,this.canvas.height);
-      draw.paths(this.ctx,this.paths);
-      if(this.paths.length>0){
-         this.undoBtn.disabled=false;
-      }else{
-         this.undoBtn.disabled=true;
+   handleDrawing = (evt) => {
+      if (this.isDrawing) {
+         const mouse = this.getMouse(evt);
+         const lastPath = this.paths[this.paths.length - 1];
+         lastPath.push(mouse);
+         this.redraw();
       }
-   }
+   };
 
-   #getMouse=(evt)=>{
-      const rect=this.canvas.getBoundingClientRect();
+   handleEndDrawing = () => {
+      this.isDrawing = false;
+   };
+
+   undoLastPath = () => {
+      this.paths.pop();
+      this.redraw();
+   };
+
+   redraw = () => {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      // Draw paths
+      this.paths.forEach((path) => {
+         this.ctx.beginPath();
+         path.forEach(([x, y]) => {
+            this.ctx.lineTo(x, y);
+         });
+         this.ctx.stroke();
+      });
+      this.undoBtn.disabled = this.paths.length === 0;
+   };
+
+   getMouse = (evt) => {
+      const rect = this.canvas.getBoundingClientRect();
       return [
-         Math.round(evt.clientX-rect.left),
-         Math.round(evt.clientY-rect.top)
+         Math.round(evt.clientX - rect.left),
+         Math.round(evt.clientY - rect.top),
       ];
-   }
+   };
 }
