@@ -2,19 +2,6 @@
 
 The SketchPad App is a simple drawing application built using HTML, CSS, and JavaScript. It allows users to draw freehand sketches on a canvas element and provides basic functionalities like drawing, undoing, and clearing the canvas.
 
-## Table of Contents
-
-- [Demo](#demo)
-- [Features](#features)
-- [Getting Started](#getting-started)
-  - [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-
-## Demo
-
-![SketchPad App Demo](demo.gif)
 
 ## Features
 
@@ -29,7 +16,7 @@ The SketchPad App is a simple drawing application built using HTML, CSS, and Jav
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/sketchpad-app.git
+   git clone https://github.com/KamelSenfro/Drawing-Pad.git
 Usage
 
     Open the index.html file in a web browser.
